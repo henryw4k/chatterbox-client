@@ -1,5 +1,29 @@
 
 var app = {};
+
+// List of HTML entities for escaping.
+var htmlEscapes = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#x27;',
+  '/': '&#x2F;'
+};
+
+// Regex containing the keys listed immediately above.
+var htmlEscaper = /[&<>"'\/]/g;
+
+// Escape a string for HTML interpolation.
+_.escape = function(string) {
+  return ('' + string).replace(htmlEscaper, function(match) {
+    return htmlEscapes[match];
+  });
+};
+
+
+
+
 app.init= function() {
   app.server = 'https://api.parse.com/1/classes/chatterbox';
 };
@@ -19,13 +43,13 @@ app.fetch= function() {
         console.log(data);
 
         for (var i = 0; i < data.results.length; i++) {
-          var $username = '<span class = user>'+data.results[i].username+'</span>';
-          var $message = '<span class = message>'+data.results[i].innerText+'</span>';
-          var $time = '<span class=time>' + data.results[i].createdAt + '</span>'
+          var $username = '<span class = user>'+_.escape(data.results[i].username)+'</span>';
+          var $message = '<span class = message>'+_.escape(data.results[i].text)+'</span>';
+          var $time = '<span class=time>' + _.escape(data.results[i].createdAt) + '</span>'
           // $('.chats').append(data.results[i].username + ": ").append(data.results[i].text).append("<br>");
             $('.chats').append($username + ': ' + $message + $time + '<br>');
         }
-        console.log(data.results.length);
+        //console.log(newdata.results.length);
       },
       error: function (data) {
         // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
