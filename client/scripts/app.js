@@ -1,76 +1,8 @@
 
 var app = {};
-
-// List of HTML entities for escaping.
-var htmlEscapes = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#x27;',
-  '/': '&#x2F;'
-};
-
-// Regex containing the keys listed immediately above.
-var htmlEscaper = /[&<>"'\/]/g;
-
-// Escape a string for HTML interpolation.
-_.escape = function(string) {
-  return ('' + string).replace(htmlEscaper, function(match) {
-    return htmlEscapes[match];
-  });
-};
-
 app.init= function() {
   app.server = 'https://api.parse.com/1/classes/chatterbox';
 };
-
-// fetch function
-app.fetch= function() {
-  $.ajax({
-      url: 'https://api.parse.com/1/classes/chatterbox',
-      type: 'GET',
-      contentType: 'application/json',
-      // how we extract data - by reverse chronological order
-      // how data is presented
-      data: {
-        order: "-createdAt"
-      },
-      success: function (data) {
-        // console.log('chatterbox: got the message');
-        // console.log(data);
-
-        for (var i = 0; i < data.results.length; i++) {
-          var $username = '<span class = user>'+_.escape(data.results[i].username)+'</span>';
-          var $message = '<span class = message>'+_.escape(data.results[i].text)+'</span>';
-          var $time = '<span class=time>' + _.escape(data.results[i].createdAt) + '</span>';
-          var $roomname = '<span class=room>' + _.escape(data.results[i].roomname) + '</span>';
-          // $('.chats').append(data.results[i].username + ": ").append(data.results[i].text).append("<br>");
-            $('.chats').append($username + ': ' + $message + $time + $roomname + '<br>');
-        }
-        //console.log(newdata.results.length);
-      },
-      error: function (data) {
-        // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
-        console.error('chatterbox: Failed to get message');
-      }
-    });
-};
-
-
-app.refresh = function() {
- $(document).ready(function(){
-  $('.refresh').click(function(){
-      $('.chats').empty();
-      app.fetch();
-    });
-});
-
-
-};
-
-
-// LOOK AT CONFIG.JS!!!
 
 // send function
 app.send = function(message) {
@@ -82,7 +14,9 @@ app.send = function(message) {
         data: JSON.stringify(message),
         contentType: 'application/json',
         success: function (data) {
-
+          //app.refresh();
+          $('#chats').empty();
+          app.fetch();
         },
         error: function (data) {
 
@@ -111,6 +45,46 @@ $(document).ready(function(){
 
 });
 
+// fetch function
+app.fetch= function() {
+  $.ajax({
+      url: 'https://api.parse.com/1/classes/chatterbox',
+      type: 'GET',
+      contentType: 'application/json',
+      // how we extract data - by reverse chronological order
+      // how data is presented
+      data: {
+        order: "-createdAt"
+      },
+      success: function (data) {
+        // console.log('chatterbox: got the message');
+        // console.log(data);
+
+        for (var i = 0; i < data.results.length; i++) {
+          var $username = '<span class = user>'+_.escape(data.results[i].username)+'</span>';
+          var $message = '<span class = message>'+_.escape(data.results[i].text)+'</span>';
+          var $time = '<span class=time>' + _.escape(data.results[i].createdAt) + '</span>';
+          var $roomname = '<span class=room>' + _.escape(data.results[i].roomname) + '</span>';
+          // $('.chats').append(data.results[i].username + ": ").append(data.results[i].text).append("<br>");
+            $('#chats').append($username + ': ' + $message + $time + $roomname + '<br>');
+        }
+        //console.log(newdata.results.length);
+      },
+      error: function (data) {
+        // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
+        console.error('chatterbox: Failed to get message');
+      }
+    });
+};
+
+
+
+
+
+
+// LOOK AT CONFIG.JS!!!
+
+
 // filtering room function
 $(document).ready(function(){
   $('button.rooms').on('click', function () {
@@ -134,7 +108,7 @@ $(document).ready(function(){
           }// if
         }// for
 
-        $('.chats').empty();
+        $('#chats').empty();
 
 
         for (var i = 0; i < uniq_room.length; i++) {
@@ -143,7 +117,7 @@ $(document).ready(function(){
           var $time = '<span class=time>' + _.escape(uniq_room[i].createdAt) + '</span>';
           var $roomname = '<span class=room>' + _.escape(uniq_room[i].roomname) + '</span>';
           // $('.chats').append(data.results[i].username + ": ").append(data.results[i].text).append("<br>");
-            $('.chats').append($username + ': ' + $message + $time + $roomname + '<br>');
+            $('#chats').append($username + ': ' + $message + $time + $roomname + '<br>');
         }
         //console.log(newdata.results.length);
       },
@@ -152,13 +126,51 @@ $(document).ready(function(){
         console.error('chatterbox: Failed to get message');
       }
     }); //ajax
+  }); // FILTERING ROOM
 
+  // **** FUNCTIONS ***
+app.clearMessages = function() {
+  $('#chats').empty();
+};
 
-  }); //button
+app.addMessage = function(message) {
+  var $username = message.username;
+  var $message = message.text;
+  // var $time = '<span class=time>' + message.createdAt + '</span>';
+  var $roomname = message.roomname;
+  $('#chats').append($username + ': ' + $message + $roomname + '<br>');
+};
 
-});//dom
-
+app.refresh = function() {
+ // $(document).ready(function(){
+  $('.refresh').click(function(){
+      $('#chats').empty();
+      app.fetch();
+    // });
+  });
+};
 
 app.fetch();
 app.refresh();
+});//dom
+
+var htmlEscapes = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#x27;',
+  '/': '&#x2F;'
+};
+
+// List of HTML entities for escaping.
+// Regex containing the keys listed immediately above.
+var htmlEscaper = /[&<>"'\/]/g;
+
+// Escape a string for HTML interpolation.
+_.escape = function(string) {
+  return ('' + string).replace(htmlEscaper, function(match) {
+    return htmlEscapes[match];
+  });
+};
 
