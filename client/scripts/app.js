@@ -82,13 +82,15 @@ app.refresh = function() {
   //   text: $('textBox').val(),
   //   roomname: $('roomBox').val()
   // };
-    var message = {
-    username: "sup brotthhhaa",
-    text: "duueeeedddeeerrr",
-    roomname: "rooommmmmm"
-  };
-app.send = function() {
-    $('.send').click(function(){
+    //var message = {
+    //   username: $(".userBox").val(),
+    //   texts: $(".messageBox").val(),
+    //   roomname: $(".roomBox").val()
+    // };
+
+
+// LOOK AT CONFIG.JS!!!
+app.send = function(message) {
       $.ajax({
         // always use this url
         url: 'https://api.parse.com/1/classes/chatterbox',
@@ -97,7 +99,13 @@ app.send = function() {
         data: JSON.stringify(message),
         contentType: 'application/json',
         success: function (data) {
-          console.log('chatterbox: Message sent');
+          // var $username = '<span class = users>'+_.escape(data.username)+'</span>';
+          // var $message = '<span class = messages>'+_.escape(data.texts)+'</span>';
+          // var $time = '<span class=times>' + _.escape(data.roomname) + '</span>'
+          // // $('.chats').append(data.results[i].username + ": ").append(data.results[i].text).append("<br>");
+          //   $('.chats').append($username + ': ' + $message + $time + '<br>');
+          // console.log('chatterbox: Message sent');
+          console.log(data);
         },
         error: function (data) {
           // console.log($('.textBox').val());
@@ -105,11 +113,22 @@ app.send = function() {
           console.error('chatterbox: Failed to send message');
         }
       });
-    });
-  }
+  };
 
+$('.send').on('click', function () {
+   var username = $('.userBox').val();
+   var texts = $('.messageBox').val();
+   var roomName = $('.roomBox').val();
+
+   var message = {
+    'username': username,
+    'text': texts,
+    'roomname': roomName
+   };
+
+   console.log(message);
+   app.send(message);
+});
 
 app.fetch();
 app.refresh();
-app.send();
-
